@@ -1,0 +1,138 @@
+@misc{onishi2024lessons,
+  author    = {Kenji Onishi},
+  title     = {Lessons from Toyota for Building Durable Multi-Agent Copilots},
+  howpublished = {Presented at Microsoft Ignite 2024},
+  year      = {2024},
+  month     = {November},
+  note      = {Session BRK117},
+  url       = {https://ignite.microsoft.com/en-US/sessions/BRK117},
+  language  = {en}
+}
+
+@online{pandeyOpenFOAMGPTRAGAugmentedLLM2025,
+  title = {{{OpenFOAMGPT}}: A {{RAG-Augmented LLM Agent}} for {{OpenFOAM-Based Computational Fluid Dynamics}}},
+  shorttitle = {{{OpenFOAMGPT}}},
+  author = {Pandey, Sandeep and Xu, Ran and Wang, Wenkang and Chu, Xu},
+  date = {2025-01-10},
+  eprint = {2501.06327},
+  eprinttype = {arXiv},
+  eprintclass = {physics},
+  doi = {10.48550/arXiv.2501.06327},
+  url = {http://arxiv.org/abs/2501.06327},
+  urldate = {2025-03-27},
+  abstract = {This work presents a large language model (LLM)-based agent OpenFOAMGPT tailored for OpenFOAM-centric computational fluid dynamics (CFD) simulations, leveraging two foundation models from OpenAI: the GPT-4o and a chain-of-thought (CoT)-enabled o1 preview model. Both agents demonstrate success across multiple tasks. While the price of token with o1 model is six times as that of GPT-4o, it consistently exhibits superior performance in handling complex tasks, from zero-shot case setup to boundary condition modifications, turbulence model adjustments, and code translation. Through an iterative correction loop, the agent efficiently addressed single- and multi-phase flow, heat transfer, RANS, LES, and other engineering scenarios, often converging in a limited number of iterations at low token costs. To embed domain-specific knowledge, we employed a retrieval-augmented generation (RAG) pipeline, demonstrating how preexisting simulation setups can further specialize the agent for sub-domains such as energy and aerospace. Despite the great performance of the agent, human oversight remains crucial for ensuring accuracy and adapting to shifting contexts. Fluctuations in model performance over time suggest the need for monitoring in mission-critical applications. Although our demonstrations focus on OpenFOAM, the adaptable nature of this framework opens the door to developing LLM-driven agents into a wide range of solvers and codes. By streamlining CFD simulations, this approach has the potential to accelerate both fundamental research and industrial engineering advancements.},
+  langid = {english},
+  pubstate = {prepublished},
+  keywords = {Physics - Computational Physics,Physics - Fluid Dynamics},
+  file = {/Users/hajime/Zotero/storage/J4X546LU/Pandey et al. - 2025 - OpenFOAMGPT a RAG-Augmented LLM Agent for OpenFOAM-Based Computational Fluid Dynamics.06327}
+}
+
+@misc{chenOptMetaOpenFOAMLargeLanguage2025,
+  title = {{{OptMetaOpenFOAM}}: {{Large Language Model Driven Chain}} of {{Thought}} for {{Sensitivity Analysis}} and {{Parameter Optimization}} Based on {{CFD}}},
+  shorttitle = {{{OptMetaOpenFOAM}}},
+  author = {Chen, Yuxuan and Zhang, Long and Zhu, Xu and Zhou, Hua and Ren, Zhuyin},
+  year = {2025},
+  month = mar,
+  number = {arXiv:2503.01273},
+  eprint = {2503.01273},
+  primaryclass = {cs},
+  doi = {10.48550/arXiv.2503.01273},
+  urldate = {2025-03-21},
+  abstract = {Merging natural language interfaces with computational fluid dynamics (CFD) workflows presents transformative opportunities for both industry and research. In this study, we introduce OptMetaOpenFOAM - a novel framework that bridges MetaOpenFOAM with external analysis and optimization tool libraries through a large language model (LLM)-driven chain-of-thought (COT) methodology. By automating complex CFD tasks via natural language inputs, the framework empowers non-expert users to perform sensitivity analyses and parameter optimizations with markedly improved efficiency. The test dataset comprises 11 distinct CFD analysis or optimization tasks, including a baseline simulation task derived from an OpenFOAM tutorial covering fluid dynamics, combustion, and heat transfer. Results confirm that OptMetaOpenFOAM can accurately interpret user requirements expressed in natural language and effectively invoke external tool libraries alongside MetaOpenFOAM to complete the tasks. Furthermore, validation on a non-OpenFOAM tutorial case - namely, a hydrogen combustion chamber - demonstrates that a mere 200-character natural language input can trigger a sequence of simulation, postprocessing, analysis, and optimization tasks spanning over 2,000 lines of code. These findings underscore the transformative potential of LLM-driven COT methodologies in linking external tool for advanced analysis and optimization, positioning OptMetaOpenFOAM as an effective tool that streamlines CFD simulations and enhances their convenience and efficiency for both industrial and research applications. Code is available at https://github.com/Terry-cyx/MetaOpenFOAM.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Artificial Intelligence,Physics - Fluid Dynamics},
+  file = {/Users/hajime/Zotero/storage/S4XDYT87/Chen et al. - 2025 - OptMetaOpenFOAM Large Language Model Driven Chain of Thought for Sensitivity Analysis and Parameter Optimization based on CFD.pdf}
+}
+
+@misc{chenMetaOpenFOAMLLMbasedMultiagent2024,
+  title = {{{MetaOpenFOAM}}: An {{LLM-based}} Multi-Agent Framework for {{CFD}}},
+  shorttitle = {{{MetaOpenFOAM}}},
+  author = {Chen, Yuxuan and Zhu, Xu and Zhou, Hua and Ren, Zhuyin},
+  year = {2024},
+  month = aug,
+  number = {arXiv:2407.21320},
+  eprint = {2407.21320},
+  primaryclass = {cs},
+  doi = {10.48550/arXiv.2407.21320},
+  urldate = {2025-03-21},
+  abstract = {Remarkable progress has been made in automated problem solving through societies of agents based on large language models (LLMs). Computational fluid dynamics (CFD), as a complex problem, presents unique challenges in automated simulations that require sophisticated solutions. MetaOpenFOAM, as a novel multi-agent collaborations framework, aims to complete CFD simulation tasks with only natural language as input. These simulation tasks include mesh pre-processing, simulation and so on. MetaOpenFOAM harnesses the power of MetaGPT's assembly line paradigm, which assigns diverse roles to various agents, efficiently breaking down complex CFD tasks into manageable subtasks. Langchain further complements MetaOpenFOAM by integrating Retrieval-Augmented Generation (RAG) technology, which enhances the framework's ability by integrating a searchable database of OpenFOAM tutorials for LLMs. Tests on a benchmark for natural language-based CFD solver, consisting of eight CFD simulation tasks, have shown that MetaOpenFOAM achieved a high pass rate per test (85\%), with each test case costing only \$0.22 on average. The eight CFD simulation tasks encompass a range of multidimensional flow problems, covering compressible and incompressible flows with different physical processes. This demonstrates the capability to automate CFD simulations using only natural language input, iteratively correcting errors to achieve the desired simulations. An ablation study was conducted to verify the necessity of each component in the multi-agent system and the RAG technology. A sensitivity study on the randomness of LLM showed that LLM with low randomness can obtain more stable and accurate results. Additionally, MetaOpenFOAM owns the ability to identify and modify key parameters in user requirements, and excels in correcting bugs when failure match occur,which demonstrates the generalization of MetaOpenFOAM.},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Artificial Intelligence,Physics - Fluid Dynamics},
+  file = {/Users/hajime/Zotero/storage/JIBNYABE/Chen et al. - 2024 - MetaOpenFOAM an LLM-based multi-agent framework for CFD.pdf}
+}
+
+@misc{picardConceptManufacturingEvaluating2024a,
+  title = {From {{Concept}} to {{Manufacturing}}: {{Evaluating Vision-Language Models}} for {{Engineering Design}}},
+  shorttitle = {From {{Concept}} to {{Manufacturing}}},
+  author = {Picard, Cyril and Edwards, Kristen M. and Doris, Anna C. and Man, Brandon and Giannone, Giorgio and Alam, Md Ferdous and Ahmed, Faez},
+  year = {2024},
+  month = dec,
+  number = {arXiv:2311.12668},
+  eprint = {2311.12668},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2311.12668},
+  urldate = {2025-05-31},
+  abstract = {Engineering design is undergoing a transformative shift with the advent of AI, marking a new era in how we approach product, system, and service planning. Large language models have demonstrated impressive capabilities in enabling this shift. Yet, with text as their only input modality, they cannot leverage the large body of visual artifacts that engineers have used for centuries and are accustomed to. This gap is addressed with the release of multimodal vision-language models (VLMs), such as GPT-4V, enabling AI to impact many more types of tasks. Our work presents a comprehensive evaluation of VLMs across a spectrum of engineering design tasks, categorized into four main areas: Conceptual Design, System-Level and Detailed Design, Manufacturing and Inspection, and Engineering Education Tasks. Specifically in this paper, we assess the capabilities of two VLMs, GPT-4V and LLaVA 1.6 34B, in design tasks such as sketch similarity analysis, CAD generation, topology optimization, manufacturability assessment, and engineering textbook problems. Through this structured evaluation, we not only explore VLMs' proficiency in handling complex design challenges but also identify their limitations in complex engineering design applications. Our research establishes a foundation for future assessments of vision language models. It also contributes a set of benchmark testing datasets, with more than 1000 queries, for ongoing advancements and applications in this field.},
+  archiveprefix = {arXiv},
+  langid = {english},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Computational Engineering Finance and Science},
+  file = {/Users/hajime/Zotero/storage/YDL3PGTY/Picard et al. - 2024 - From Concept to Manufacturing Evaluating Vision-Language Models for Engineering Design.12668}
+}
+
+@misc{xiang2025modigenlargelanguagemodelbased,
+      title={ModiGen: A Large Language Model-Based Workflow for Multi-Task Modelica Code Generation}, 
+      author={Jiahui Xiang and Tong Ye and Peiyu Liu and Yinan Zhang and Wenhai Wang},
+      year={2025},
+      eprint={2503.18460},
+      archivePrefix={arXiv},
+      primaryClass={cs.SE},
+      url={https://arxiv.org/abs/2503.18460}, 
+}
+
+@article{laughmanComparisonTransientHeatPump2014,
+  title = {A {{Comparison}} of {{Transient Heat-Pump Cycle Simulations}} with {{Homogeneous}} and {{Heterogeneous Flow Models}}},
+  author = {Laughman, Christopher R},
+  date = {2014},
+  abstract = {This paper compares the effects of two different refrigerant flow modeling assumptions on the transient performance of vapor-compression heat pump cycles. These simulations are developed in the Modelica modeling language, which uses an acausal, equation-oriented approach to describe physical systems. The effect of the flow assumptions and specific slip ratio correlations on both the equilibrium operating point and the transient behavior of the cycle are demonstrated through these simulations. It is shown that equivalent simulations with different slip ratio correlations each have different equilibrium mass inventories, and that some aspects of the transient system behavior exhibit differences between the representative simulations. The effect of the software implementation on the model performance is also discussed.},
+  langid = {english},
+  file = {/Users/hajime/Zotero/storage/NNA2LUGB/Laughman - 2014 - A Comparison of Transient Heat-Pump Cycle Simulations with Homogeneous and Heterogeneous Flow Models.pdf}
+}
+
+@inbook{fujita2023design,
+  author    = {藤田喜久雄},
+  title     = {設計論: 製品設計からシステムズイノベーションへ},
+  publisher = {コロナ社},
+  year      = {2023},
+  address   = {東京},
+  isbn      = {978-4-339-04684-7},
+  pages     = {494},
+  language  = {ja},
+  note      = {初版第1刷発行日: 2023年7月7日}
+}
+
+@inbook{jsme2020_1dcae,
+  author    = {日本機械学会},
+  title     = {設計のための1DCAE概念と実現技術},
+  publisher = {日本機械学会},
+  year      = {2020},
+  address   = {東京},
+  series    = {1DCAEレクチャーシリーズ},
+  isbn      = {978-4-88898-319-8},
+  pages     = {256},
+  language  = {ja},
+  note      = {初版発行日: 2020年11月2日}
+}
+
+@article{tamaya2024ai,
+  author    = {玉谷基亮},
+  title     = {三菱電機グループの持続的なものづくりを支えるAIソリューション群},
+  journal   = {三菱電機技報},
+  volume    = {98},
+  number    = {9},
+  pages     = {3--6},
+  year      = {2024},
+  publisher = {三菱電機株式会社},
+  url       = {https://www.giho.mitsubishielectric.co.jp/giho/pdf/2024/2409103.pdf},
+  language  = {ja}
+}
