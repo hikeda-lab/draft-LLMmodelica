@@ -259,20 +259,20 @@ MERL HVAC Libralyなどの物理シミュレーションライブラリを用い
 3. 生成層：OpenAI GPT-4o-mini をベースとするＬＬＭに対し，役割指示＋検索結果＋会話履歴から構成されるテンプレートを送信する．
 4. 出力層：回答と同時に引用情報を提示し，ユーザはソースコード断片へ直接ジャンプできる．
 
-#figure(image("figure/agent_workflow.jpg", width: 50%), caption: [
-  Workflow chart of our agent.
-])<fig_RAGsystem>
+// #figure(image("figure/agent_workflow.jpg", width: 50%), caption: [
+//   Workflow chart of our agent.
+// ])<fig_RAGsystem>
 
 === Modelicaコード生成エージェント
-#ref(<fig_agent>)にエージェントのワークフローを示す．核心は，Plan-Execute-Critique ループにより「検索→提案→コーディング」を自律実行する点である．
+にエージェントのワークフローを示す．核心は，Plan-Execute-Critique ループにより「検索→提案→コーディング」を自律実行する点である．
 
 1. RAG: 前節のRAGシステムを用いて，ユーザからのプロンプトに関連するドキュメントを検索する．
 2. プランナー：RAGシステムが出力した検索結果からモデル構造の手順書（pseudo-plan）を生成する ．
 3. コーダー：手順書に従いコードスニペットを生成する．
 
-#figure(image("figure/agent_workflow.jpg", width: 50%), caption: [
-  Workflow chart of our agent.
-])<fig_agent>
+// #figure(image("figure/agent_workflow.jpg", width: 50%), caption: [
+//   Workflow chart of our agent.
+// ])<fig_agent>
 
 
 = 結果
@@ -287,9 +287,23 @@ MERL HVAC Libralyなどの物理シミュレーションライブラリを用い
 
 == RAGシステムの回答
 
-=== 文書データベースの情報が回答に必要な質問
+#grid(
+  columns: (50%, 50%),
+  [
+    #figure(image("figure/RAG_workflow.jpeg", width: 100%), caption: [
+      Workflow chart of our agent.
+    ])<fig_RAG_workflow>
+  ],
+  [
+    #figure(image("figure/Agent_workflow.jpg", width: 100%), caption: [
+      Workflow chart of our agent.
+    ])<fig_Agent_workflow>
+  ],
+)
 
-prompt
+
+
+=== 文書データベースの情報が回答に必要な質問
 
 === コード作成の指示
 
@@ -310,25 +324,166 @@ Source Chunks:
   caption: [Response of LLM],
 )<tabale_LLMresponse>
 
+
 == Ｍｏｄｅｌｉｃａコード生成エージェント
 
 RAGシステムでは，無回答であったコーディング作業にも
 
-#grid(
-  columns: (50%, 50%),
-  [
-    #figure(image("figure/step_by_step.jpeg", width: 100%), caption: [
-      Workflow chart of our agent.
-    ])<fig_RAGsystem>
-  ],
-  [
-    #figure(image("figure/code_generation.jpeg", width: 100%), caption: [
-      Workflow chart of our agent.
-    ])<fig_RAGsystem>
-  ],
+
+// #grid(
+//   columns: (50%, 50%),
+//   [
+//     #figure(image("figure/step_by_step.jpeg", width: 100%), caption: [
+//       Workflow chart of our agent.
+//     ])<fig_step_by_step>
+//   ],
+//   [
+//     #figure(image("figure/code_generation.jpeg", width: 100%), caption: [
+//       Workflow chart of our agent.
+//     ])<fig_code_generation>
+//   ],
+// )
+
+
+
+#figure(
+  table(
+    columns: 1,
+    align: left,
+    [#text(size: 6pt)[
+        `
+1 Set Up the Environment:
+• Ensure you have a Modelica environment installed (e-g-, OpenModelica, Dymola).
+• Import the MERL-IVAC Library (VCComponents) into your Modelica environment.
+
+2 Create a New Model:
+• Start a new Modelica model file (e-f•, RoomAirConditioner-mo).
+• Define the model structure and include necessary libraries. within YourPackageName; model RoomAirConditioner
+
+3 Define Parameters:
+• Define parameters for the room conditions, such as temperature, humidity, and volume. You can use the parameters from the MultiportLumpedRoomTest model as a reference.
+parameter SI. Temperature TRoom_init - Modelica. Units. Conversions. from_degC(27.0);
+parameter Real RHRoom_init = 0.51;
+parameter SI. Volume volRoom = 87.5 * 77 * 84 * 1.63871e-5 * 10;
+
+4 Instantiate the Room Model:
+• Use the MultiportLumpedRoomTest model to represent the room. This model will handle the thermal dynamics of the room.
+MultiportLumpedRoomTest room(
+TRoom_init TRoom_ init, RHRoom_ init-RHRoom init, volRoom-volRoom);
+
+5 Define the Air Handling System:
+• Create an air handling system using components from the FanCurveModels package. You may need to define a fan and a cooling coil.
+// Example of instantiating a fan and cooling coil
+FanCurveModels. Fan fan(...);
+CoolingCoil coolingCoil(...);
+
+6 Connect Components:
+• Connect the room,
+fan, and cooling coil. Ensure that the air flow from the fan goes into the room and that
+the cooling coil is properly integrated into the air handling system.
+connect (fan.outlet, coolingCoil. inlet); connect (coolingCoil.outlet, room.airinlet);
+
+7 Define Control Logic:
+• Implement control logic for the air conditioner. This could involve setting temperature setpoints and controlling the fan speed based on room conditions.
+// Example control logic
+if room. TRoom > TRoom setpoint then
+fan. speed = maxFanSpeed; // Turn on the fan
+else
+fan. speed = 0; // Turn off the fan
+end if;
+
+8 Add HVAC System Record:
+• Optionally, you can include the HVACSystem record to manage the operating conditions of the HVAC system.
+HVACSystem hvacSystem(...);
+
+9 Simulation Setup:
+• Set up the simulation parameters, including the simulation time and solver settings.
+simulate(RoomAirConditioner);
+
+10 Run the Simulation:
+• Execute the simulation and analyze the results, Check the room temperature, humidity, and other relevant outputs to ensure the air conditioner is functioning as expected.
+
+11 Validation:
+• Validate the model against known benchmarks or existing models (e-g-, EnergyPlus) to ensure accuracy.
+
+12 Documentation:
+• Document the model, including the purpose, parameters, and any assumptions made during the modeling process,
+Conclusion
+By following these steps, you can construct a room air conditioner model using the MERL-HVAC Library (VCComponents). Adjust the parameters and components as necessary to fit your specific requirements and ensure the
+
+
+      `]
+    ],
+  ),
 )
 
 
+#figure(table(
+  columns: 1,
+  align: left,
+
+  
+  [#text(size: 7pt)[`
+
+within YourPackageName;
+
+model RoomAirConditioner
+
+// Import necessary libraries
+import Modelica. SIunits;
+import VCComponents.Components.AirHandling.Testing.MultiportLumpedRoomTest;
+import VCComponents.Components.AirHandling.FanCurveModels;
+import MEBuildings.USDOE.ResidentialPrototype.BaseClasses.RecordTemplates.OperatingConditions.HVACSystem;
+
+// Define parameters for the room conditions
+parameter SI. Temperature TRoom_init = Modelica. Units.Conversions. from _degC(27.0);
+parameter Real RHRoom_init = 0.51;
+parameter SI. Volume volRoom = 87.5 * 77 * 84 * 1.63871e-5 * 10;
+
+// Instantiate the room model
+MultiportLumpedRoomTest room(
+    TRoom_init-TRoom_ init,
+    RHRoom_init=RHRoom_init,
+    volRoom=volRoom);
+
+// Define the air handling system components
+FanCurveModels. Fan fan(
+    // Define fan parameters here
+    // Example: flowRate=..•, pressureRise=..., etc.
+);
+
+CoolingCoil coolingCoil(
+    // Define cooling coil parameters here
+    // Example: coolingCapacity=..., etc.
+);
+
+// Connect components
+connect(fan.outlet, coolingCoil. inlet);
+connect (coolingCoil. outlet, room.airInlet);
+
+// Define control logic
+parameter SI. Temperature TRoom setpoint = Modelica. Units. Conversions. from_degC(24.0);
+parameter Real maxFanSpeed = 1.0; // Maximum fan speed
+
+// Control logic for the air conditioner
+equation
+    if room. TRoom > TRoom_setpoint then
+        fan. speed = maxFanSpeed; // Turn on the fan
+    else
+        fan. speed = 0; // Turn off the fan
+    end if;
+
+// Optionally, include the HVAC system record
+
+HVACSystem hvacSystem(
+    // Define HVAC system parameters here
+    // Example: eps=..•, TAirSupply=..., etc.
+);
+
+end RoomAirConditioner;
+
+    `]],
+))
 
 
 = 結　　　言
