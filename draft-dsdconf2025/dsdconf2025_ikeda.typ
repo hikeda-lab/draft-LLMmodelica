@@ -1,6 +1,5 @@
-
-#import "style/jsme_style.typ": *
-#import "bib-style/lib.typ": *
+#import "style/jsme_style.typ" : *
+#import "bib-style/lib.typ" : *
 
 
 
@@ -30,8 +29,8 @@
       english_place: "8-1-1, Tsukaguchi-Honmachi, Amagasaki City, Hyogo 661-8661, Japan",
     ),
   (
-      name: "金丸　昌寛",
-      english_name: "Takashi KOBAYSHI",
+      name: "金丸　正寛",
+      english_name: "Masahito Kanamaru",
       thanks: "三菱電機株式会社 設計開発技術センター",
       english_thanks: "Engineering and Development Center, Mitsubishi Electric Corporation",
       english_place: "8-1-1, Tsukaguchi-Honmachi, Amagasaki City, Hyogo 661-8661, Japan",
@@ -46,7 +45,7 @@
   ),
   english_title: [Supporting 1DCAE modeling using Large Language Model],
   english_subtitle: [],
-  abstruct: [In complex system design, where mechanical, electrical, and control subsystems interact, 1D CAE is increasingly adopted to optimize products quickly by verifying requirements through early-stage physical simulations on virtual prototypes. The Modelica language has become the standard for modeling these systems due to its object-oriented, declarative nature and ability to handle multi-domain interactions. It supports hierarchical modeling using extensive libraries like the Modelica Standard Library, which includes components for thermal, electromagnetic, and control domains.Recent advancements in generative AI, particularly Large Language Models (LLMs), have enabled new approaches in design engineering, such as automating design system handling and managing design knowledge. This study presents a framework that uses Retrieval-Augmented Generation (RAG) to search closed corporate Modelica repositories and employs three collaborative agents—a planner, coder, and tester—to automatically assemble libraries.Experiments using OpenAI-4o demonstrated that this agent-based workflow could generate candidate code for tasks that RAG alone could not handle. The results also showed improved code generation performance when working with proprietary internal libraries, highlighting the potential of combining LLMs with structured agent collaboration in engineering design automation. ],
+  abstruct: [In complex system design, where mechanical, electrical, and control subsystems interact, 1D CAE is increasingly adopted to optimize products quickly by verifying requirements through early-stage physical simulations on virtual prototypes. The Modelica language has become the standard for modeling these systems due to its object-oriented, declarative nature and ability to handle multi-domain interactions. It supports hierarchical modeling using extensive libraries. Recent advancements in generative AI, particularly Large Language Models (LLMs), have enabled new approaches in design engineering, such as automating design system handling and managing design knowledge. This study presents a framework that uses Retrieval-Augmented Generation (RAG) to search closed corporate Modelica repositories and employs three collaborative agents—a planner, coder, and tester—to automatically assemble libraries. Experiments using OpenAI-4o demonstrated that this agent-based workflow could generate candidate code for tasks that RAG alone could not handle. The results also showed improved code generation performance when working with proprietary internal libraries, highlighting the potential of combining LLMs with structured agent collaboration in engineering design automation. ],
   keywords: ("Large Language Model", "Model-based Development", "1DCAE", "Design Engineering"),
   email: "taro@jsme.or.jp",
 )
@@ -57,88 +56,70 @@
 
 = 緒　　　言
 
-複雑なシステムの設計においては，機械，電気，制御の各サブシステムが相互に干渉する複雑な製品を短期間で最適化するため，設計初期からシミュレーションを活用して仮想プロトタイプ上で要求充足性を検証する1DCAEが主流となりつつある#citep(<jsme2020_1dcae>) ．
-// SBD は CAD 形状と挙動モデルを結合したコンポーネントを組み合わせることで，設計判断の即時フィードバックを可能にする手法として提案され，航空宇宙や自動車分野を中心に急速に普及している．
-物理シミュレーションモデルの記述には，オブジェクト指向かつ宣言型で多領域連成を自然に扱える Modelica 言語が事実上の標準となっている．Modelica Standard Library をはじめ，熱流体，電磁気，制御系など多様なドメインのサブモデルがライブラリとして公開されており，ユーザはライブラリから既存コンポーネントをインポートして階層的にモデルを構築できる．
-// さらに，ESI SimulationX や Dassault Systèmes Dymola などの商用ツールは分野別拡張ライブラリを備え，設計者は GUI 上でライブラリを組み合わせながらマルチフィジックス解析を実施できる．
-//加えて，タスクを分担するマルチエージェント AI は計画・検証・修正を自律的に反復することでコード品質を高め，人間と協調して開発サイクルを短縮する可能性が指摘されている．
-設計工学では，生成AIを用いて設計知識を管理し，設計システムの取り扱いを自動化する試みが行われてきた#citep(<fujita2023design>)．
-ここ最近は，生成AIの中でも大規模言語モデル Large Language Model (LLM)を中心とした生成AIの性能は大きく向上し、さまざまな設計問題への応用が検討されてされている。
-本研究は，企業内でクローズされた1DCAEのライブラリの作業支援・読解支援にLLMを適用した．
-企業内でクローズされたModelicaのライブラリを対象にRAGで関連ドキュメントを検索し，プランナー，コーダ，テスターの三つのエージェントが協調してライブラリを自動組立するフレームワークを構築した事例を報告する．OpenAI 4o-miniを用いた実験ではRAGでけのシステムでは，生成できなかったコード作成タスクにおいて候補コードが生成できることを確認した．
-企業内のクローズなライブラリの操作においてもエージェントワークフローによってコード生成能力が向上することがわかった．
-//自動車用冷却系モデル（約 4 k 行）で評価した結果，生成コードの単体シミュレーション通過率は 96 % に達し，社内中堅エンジニア（93 %）と同等以上の品質を実現した．
+近年、機械・電気・制御といった複数のサブシステムが複雑に連携するシステム設計において、設計初期の段階からシミュレーションを活用し、仮想プロトタイプ上で要求仕様の充足性を検証しながら、製品の短期最適化を図る「1DCAE（一次元CAE）」の手法が広く用いられるようになっている#citep(<jsme2020_1dcae>) 。
+// SBD は CAD 形状と挙動モデルを結合したコンポーネントを組み合わせることで、設計判断の即時フィードバックを可能にする手法として提案され、航空宇宙や自動車分野を中心に急速に普及している。
+物理シミュレーションモデルの記述には、オブジェクト指向かつ宣言型で多領域連成を自然に扱えるModelica言語が事実上の標準として位置づけられている。Modelica Standard Libraryをはじめ、熱流体、電磁気、制御系など様々なドメインに対応したサブモデルがライブラリとして公開されており、ユーザは既存のコンポーネントを階層的に組み合わせてモデルを構築できる。
+// さらに、ESI SimulationX や Dassault Systèmes Dymola などの商用ツールは分野別拡張ライブラリを備え、設計者は GUI 上でライブラリを組み合わせながらマルチフィジックス解析を実施できる。
+//加えて、タスクを分担するマルチエージェント AI は計画・検証・修正を自律的に反復することでコード品質を高め、人間と協調して開発サイクルを短縮する可能性が指摘されている。
+設計工学分野では、設計知識の体系化や設計システムの自動化に生成AIの活用が試みられている（#citep(<fujita2023design>)。
+に大規模言語モデル（LLM）の急速な進化によって、設計支援における活用範囲が拡大しつつある。本研究では、企業内でクローズドに運用されている1DCAEライブラリに対して、LLMを活用したモデリング作業・読解支援を試みた。具体的には、RAG（Retrieval-Augmented Generation）を用いた関連ドキュメント検索と、エージェントによる協調作業によってライブラリ自動組立を行うフレームワークを構築した。OpenAI 4o-miniを用いた実験では、RAG単体では対応できなかったコード生成タスクについて、エージェント型ワークフローにより候補コードの生成が可能となった。企業内のクローズドなライブラリ活用においても、エージェントワークフローによるコード生成能力の向上が確認された。
+//自動車用冷却系モデル（約 4 k 行）で評価した結果、生成コードの単体シミュレーション通過率は 96 % に達し、社内中堅エンジニア（93 %）と同等以上の品質を実現した。
 
-= 設計活動における１DCAEの役割
+= 設計における１DCAEの役割
 
-設計活動において1DCAEは，シミュレーションの手段だけではなく，設計ノウハウを集約しち設計根拠の保管機能も持っている．
-藤田#citep(<fujita2023design>)に言及した設計における1DCAEのモデルとライブラリの役割についてまとめる．
+設計現場において1DCAEは、単なるシミュレーション手段にとどまらず、設計ノウハウの集約や設計根拠の体系的な蓄積・管理といった役割も担っている(#citep(<fujita2023design>))。ここでは、設計における1DCAEのモデルとライブラリの意義について整理する。
 
 == 　コンカレントエンジニアリングを実現するための1DCAE
 
-近年の製品は，メカの挙動をソフトウェアによって細かく制御することが価値向上につながる機能であることが多く，複合領域の設計が重要になっている。複合領域の設計を効率的に進めるため，メカ，電．気，ソフトウェア（制御）といった異なる領域の設計をオーバーラップさせて並行的に進めるコンカレントエンジニアリングという設計手法が多くの企業で採用されている．
-各領域のオーバーラップ部分を開発を効率的に開発するため，シミュレーションモデルを活用した技術体系をモデルベース開発（MBD）と呼んでいる．
-MBDでは，メカ領域は3次元CADをベースとしたCAEによって製品の挙動や性質を分析する一方で，電気や制御は1次元である集中乗数系のシミュレーションで動的な挙動を計算することが多い．
-3次元のメカ領域を抽象化し、電気、ソフトなどのシミュレーションに合わせ，機械系モデルを含めた複合領域のシミュレーションを可能しにしたモデルを１Dモデルと呼ぶ．1Dモデルのシミュレーションのツールを1DCAEと呼ぶ．MBDにおいて1DCAEは，重要なシミュレーシ手段である
+現代の製品開発では、メカの挙動をソフトウェア制御によって細かく最適化することが重要な価値創出要素となり、複数領域を横断する設計が不可欠となっている。このため、メカ・電気・ソフトウェア（制御）など異なる領域の設計工程を重ね合わせて並行して進める「コンカレントエンジニアリング」が多くの企業で実践されている。こうした領域横断型設計を効率的に進めるため、シミュレーションモデルの活用によるモデルベース開発（MBD）が注目されている。
 
-1DCAEにより複合領域のシミュレーションが可能になり，コンカレントエンジニアリングの実現を支援する．
+MBDにおいては、メカ領域は3次元CADベースのCAEにより挙動・特性の解析が行われる一方、電気や制御領域では1次元の集中定数系シミュレーションが多用される。メカ領域の3次元モデルを抽象化し、他領域のシミュレーションと連携可能にしたモデルを「1Dモデル」と呼び、そのシミュレーションツールが「1DCAE」である。1DCAEはMBDの根幹を成すシミュレーション技術として重要な役割を担っている。
 
 == 　設計カタログとしての1DCAEライブラリ
 
-設計工学では，設計を効率的に進めるための物理法則の知識を設計知識と呼ぶ．これらの知識や設計の根拠を取りまとめたものを設計カタログと呼ぶ．設計カタログは，設計根拠や設計知識を体系化し，設計の再利用性を高める役割を持つ．
-1DCAEは，制御シミュレーションや物理シミュレーションのモデルを集約している．これのモデルは，ライブラリとして管理されている．
-ライブラリには，対象システムの動的挙動を再現するための理論と実験データが集積されており，モデルの忠実度（Fidelity）を支える根拠として機能する．
-このライブラリは、シミュレーションの実務が繰り返されるたびに、拡張されていき、複雑度を増していく。完成度の高い1DCAEのライブラリは，対象システムを物理法則やその根拠となるデータを備えており，設計カタログとしての性質を備える．
-開発者は，ライブラリを使いこなすことで，既存のモデルから新規のモデルを短期に構築することができる．
-1DCAEにおけるモデルは，シミュレーションの手段ではなく，設計根拠のカタログとなっている.
+設計工学では、効率的な設計活動のための物理法則や経験則を「設計知識」と呼ぶ。これらを体系的にまとめたものが「設計カタログ」であり、設計根拠や知識の再利用性向上に寄与する。1DCAEは制御シミュレーションや物理シミュレーションのモデル群をライブラリとして集約しており、理論や実験データが蓄積されている。これによりモデルの忠実度（fidelity）を裏付け、ライブラリは利用実務とともに発展・拡張し続ける。完成度の高い1DCAEライブラリは、物理法則やその根拠となるデータを備え、設計カタログとしての機能を果たす。開発者はライブラリを活用することで、既存モデルを基に短期間で新規モデルを構築できる。すなわち、1DCAEにおけるモデルは、単なるシミュレーション手段ではなく、設計根拠のカタログとして機能している。
 
 == 1DCAEのライブラリを活用における実務課題
-// 物理シミュレーションや制御シミュレーションには，さまざまの専門ライブラリを用いてモデリング作業をおこなう．
-このようなモデリング作業は，モデル対象への理解，プログラム言語と専門ライブラリの仕様，数値計算などの知識や経験など高度なドメイン知識と経験が必要になる．
-このようなモデリングとシミュレーションを実行可能なエンジニアの養成するためには，多くの時間とコストが必要になる。
-
-物理シミュレーション言語Modelicaや数値流体計算ライブラリOpenFOAMによるモデリング作業とシミュレーション実行は，研究開発でよく使われる専門ライブラリであるが，ライブラリの複雑さと,モデル対象の理解に専門性が必要なため，高度な専門知識をもつエンジニアや研究者を必要とする．
-専門性の狭い分野のため、一般書籍やReview誌などのまとまった情報を入手することも容易ではなく、ライブラリの学習の妨げになっている。
-このようにシミュレーション手段と設計カタログの性質を兼ね備えるライブラリであるが，利用するのは高度なスキルが必要になる．
+// 物理シミュレーションや制御シミュレーションには、さまざまの専門ライブラリを用いてモデリング作業をおこなう。
+このようなモデリング作業には、モデル対象への深い理解、プログラム言語と専門ライブラリの仕様、数値計算の知識や経験など、高度なドメイン知識と技能が求められる。そのため、モデリング・シミュレーションを実践可能なエンジニアの育成には多大な時間とコストを要する。物理シミュレーション言語Modelicaや数値流体計算ライブラリOpenFOAMなどは、研究開発現場で広く使われているが、ライブラリの複雑さやモデル対象の専門性から、高度な専門知識を持つエンジニア・研究者が不可欠となる。専門分野が狭いため、一般書籍やレビュー誌など体系的な情報が少なく、ライブラリ学習の障壁となっている。シミュレーション手段と設計カタログの双方の特性を持つライブラリ活用には、依然として高いスキルが要求される。
 
 = 先行研究
 
 == LLMの設計の展開事例
-2024年以降に報告された最近の設計問題のLLMを適用した事例を紹介する．
-現在では，設計知識の管理，作業の自動化，情報の共有といった設計問題にLLMが使われるようになってきている．
-Picard らは，概念設計から製造・検査に至る四つの設計フェーズを対象として，マルチモーダル Vision-Language Model（VLM）である GPT-4V と LLaVA 1.6 34B の有効性を体系的に評価した#citep(<picardConceptManufacturingEvaluating2024a>)．
-//この研究では，スケッチ類似度解析，CAD モデル生成，トポロジ最適化，製造性評価，工学教科書問題の解答など十種類以上のタスクを設定し，総計 1000 件超のベンチマークデータセットを整備して性能を比較した．
-//評価の結果，GPT-4V は手書き図面の文字認識や材料選択の上位概念抽出において高い正答率を示した一方，三次元形状の空間把握や寸法精度を要する CAD 出力では精度不足が顕在化した．
-///また，LLaVA 1.6 は低計算資源でも同等のタスクをこなせるものの，複雑な製造公差を含む課題で大幅に性能が低下し，モデルサイズと推論時間のトレードオフが課題として残った．
-同研究は VLM が生成した回答根拠を設計図や仕様書にトレースする手法を提案し，設計者が結果を検証しやすい解釈性向上の方向性を示した．多くの設計知識は，構造データではなく，非構造データである．LLMは設計における非構造データの認識処理に有効であることを示している．
+2024年以降に報告された最近の設計問題のLLMを適用した事例を紹介する。
+現在では、設計知識の管理、作業の自動化、情報の共有といった設計問題にLLMが使われるようになってきている。
+Picardら#citep(<picardConceptManufacturingEvaluating2024a>)は、概念設計から製造・検査に至る四つの設計フェーズを対象として、マルチモーダル Vision-Language Model（VLM）である GPT-5V と LLaVA 1.6 34B の有効性を体系的に評価した
+//この研究では、スケッチ類似度解析、CAD モデル生成、トポロジ最適化、製造性評価、工学教科書問題の解答など十種類以上のタスクを設定し、総計 1000 件超のベンチマークデータセットを整備して性能を比較した。
+//評価の結果、GPT-4V は手書き図面の文字認識や材料選択の上位概念抽出において高い正答率を示した一方、三次元形状の空間把握や寸法精度を要する CAD 出力では精度不足が顕在化した。
+///また、LLaVA 1.6 は低計算資源でも同等のタスクをこなせるものの、複雑な製造公差を含む課題で大幅に性能が低下し、モデルサイズと推論時間のトレードオフが課題として残った。
+同研究は VLM が生成した回答根拠を設計図や仕様書にトレースする手法を提案し、設計者が結果を検証しやすい解釈性向上の方向性を示した。多くの設計知識は、構造データではなく、非構造データである。LLMは設計における非構造データの認識処理に有効であることを示している。
 //== 企業における事例
-//日本国内のメーカーにおいても，さまざまな取り組みが行われている．
-トヨタ自動車は，熟練エンジニアの暗黙知を LLM にリンクさせて次世代車両の開発速度を高める目的で，マルチエージェント型の設計支援基盤を構築している#citep(<onishi2024lessons>)．同社では，パワートレイン設計部門においてLLMで構成されたエージェントが設計資料の探索を加速する事例が報告された．
-これらのエージェントは，制御シミュレーションや法規制などの知識を検索し，設計根拠の探索と解釈を支援している．
-//このシステムは Azure OpenAI Service 上の GPT-4 系モデルを中心に，社内ドキュメントを格納した Azure Cosmos DB，設計 BOM／図面リポジトリ，およびシミュレーションコードを連携させた Retrieval-Augmented Generation 構成である．各エージェントは「知識検索」「根拠付き要約」「コード生成」「結果検証」を役割分担し，生成した回答には元資料へのハイパーリンクを自動付与してトレーサビリティを確保した．
-//その結果，新型車のコンセプト検討から詳細設計立ち上げまでに要する社内レビュー回数を大幅に削減し，設計サイクル短縮への貢献が示された．さらに，引退が進むベテラン設計者のノウハウを LLM で保全することで，世代交代に伴う技能ギャップリスクを低減できる可能性が示唆された．
-//本事例は，LLM を中核とするマルチエージェントが企業設計プロセスへ実装された先行研究として位置づけられ，部門横断の知識共有と設計自動化を両立した点で，他の製造業に対しても有用な示唆を与える．
-三菱電機は，設計・生産準備を含む ECM（Engineering Chain Management）領域に生成 AI を組み込む社内プラットフォームを構築し，2017 年以降の AI 活用技術を集約したソリューション群を展開している#citep(<tamaya2024ai>)．同社は技術文書のレイアウト解析と差分照合を行う自然言語処理 AI，FMEA／DRBFM データを参照して新規設計変更リスクを自動抽出するリスク抽出 AI，CAE 解析結果を学習したサロゲートモデル AI などを設計フローに導入し，設計パラメーター探索の高速化と知見の再利用を図った．さらに，デジタルツインと生成 AI エージェントを連携させ，IoT で収集した実機データと仮想空間のシミュレーション結果を横断的に解析しながら設計条件を最適化する将来像を提案している．
-// これらの取り組みは，企業内の広範な設計資産を LLM／生成 AI で有効活用し，サイクルタイム短縮と技能継承を両立した事例として注目される．
-企業内では，社内でクローズされた情報を検索し設計活動に用いる．
-先行研究では，機密情報をRAGなどの検索システムを構築し，設計知識管理や情報の共有にLLMが活用されている．
+//日本国内のメーカーにおいても、さまざまな取り組みが行われている。
+トヨタ自動車は、熟練エンジニアの暗黙知を LLM にリンクさせて次世代車両の開発速度を高める目的で、マルチエージェント型の設計支援基盤を構築している#citep(<onishi2024lessons>)。同社では、パワートレイン設計部門においてLLMで構成されたエージェントが設計資料の探索を加速する事例が報告された。
+これらのエージェントは、制御シミュレーションや法規制などの知識を検索し、設計根拠の探索と解釈を支援している。
+//このシステムは Azure OpenAI Service 上の GPT-4 系モデルを中心に、社内ドキュメントを格納した Azure Cosmos DB、設計 BOM／図面リポジトリ、およびシミュレーションコードを連携させた Retrieval-Augmented Generation 構成である。各エージェントは「知識検索」「根拠付き要約」「コード生成」「結果検証」を役割分担し、生成した回答には元資料へのハイパーリンクを自動付与してトレーサビリティを確保した。
+//その結果、新型車のコンセプト検討から詳細設計立ち上げまでに要する社内レビュー回数を大幅に削減し、設計サイクル短縮への貢献が示された。さらに、引退が進むベテラン設計者のノウハウを LLM で保全することで、世代交代に伴う技能ギャップリスクを低減できる可能性が示唆された。
+//本事例は、LLM を中核とするマルチエージェントが企業設計プロセスへ実装された先行研究として位置づけられ、部門横断の知識共有と設計自動化を両立した点で、他の製造業に対しても有用な示唆を与える。
+三菱電機は、設計・生産準備を含む ECM（Engineering Chain Management）領域に生成 AI を組み込む社内プラットフォームを構築し、2017 年以降の AI 活用技術を集約したソリューション群を展開している#citep(<tamaya2024ai>)。同社は技術文書のレイアウト解析と差分照合を行う自然言語処理 AI、FMEA／DRBFM データを参照して新規設計変更リスクを自動抽出するリスク抽出 AI、CAE 解析結果を学習したサロゲートモデル AI などを設計フローに導入し、設計パラメーター探索の高速化と知見の再利用を図った。加えて、デジタルツインと生成AIエージェントを連携させ、IoTで収集した実機データと仮想空間のシミュレーション結果を横断的に解析する設計最適化の将来像を提案している。
+これら先行研究では、クローズドな社内情報をRAGなど検索システムで設計活動に活用する事例が増えており、設計知識管理や情報共有へのLLM活用が進展している。
+// これらの取り組みは、企業内の広範な設計資産を LLM／生成 AI で有効活用し、サイクルタイム短縮と技能継承を両立した事例として注目される。
+//企業内では、社内でクローズされた情報を検索し設計活動に用いる。
+//先行研究では、機密情報をRAGなどの検索システムを構築し、設計知識管理や情報の共有にLLMが活用されている。
 
 
 == 　LLMによる専門ライブラリの活用支援
-本研究ではModelica言語によって作成されたライブラリによるシミュレーションのモデリング作業の支援を検討している．
-Modelicaに限らず，物理シミュレーションは既存のライブラリを操作し，モデリングを行うことが多い．
-ここでは，LLMを物理シミュレーションのライブラリ操作に適用事例を記す．
-//シミュレーションは，モデルを集約した専門ライブラリを使いユーザがシミュレーションモデルを構成する．
-近年の大規模言語モデルLLMはコード生成力の向上により，Modelicaのコンポーネント自動生成への応用が進んでいる．
-Xiang#citep(<xiang2025modigenlargelanguagemodelbased>)は，Modelicaのコンポーネントを作成するLLMエージェント「ModiGen」を構築した．「ModiGen」は，構築したベンチマーク問題に対して，1度の指示でコード完成をおこうなうことができる指標で0.33 以上を達成する事例が報告されている．複雑なモデル構造でも一定の妥当性を保持する段階に到達した．．
+本研究はModelica言語によるライブラリのモデリング作業支援を主題とする。Modelicaに限らず、物理シミュレーション分野では既存ライブラリ操作が中心となる。
+//シミュレーションは、モデルを集約した専門ライブラリを使いユーザがシミュレーションモデルを構成する。
+近年の大規模言語モデルLLMはコード生成力の向上により、Modelicaのコンポーネント自動生成への応用が進んでいる。
+Xiang#citep(<xiang2025modigenlargelanguagemodelbased>)は、Modelicaのコンポーネントを作成するLLMエージェント「ModiGen」を構築した。近年、LLMのコード生成能力向上に伴い、Modelicaコンポーネント自動生成への応用事例が増えている。Xiangら（2025）は、Modelicaコンポーネントを自動生成するLLMエージェント「ModiGen」を開発し、ベンチマーク問題に対し1回の指示で一定の完成度を持つコード生成が可能であることを報告した。ベンチマーク問題のコードの自動化の成功率は30%から50％であった。
 
 \
-数値流体シミュレーションでよく使われるOpenFOAMは，C＋＋言語で作成されたライブラリである．
-Pandy #citep(<pandeyOpenFOAMGPTRAGAugmentedLLM2025>)は，OpenFOAMを用いたCFDシミュレーションの自動化を目的として，GPT-4oおよびCoT機能搭載モデルを基盤とするエージェント「OpenFOAMGPT」が提案している．本手法では，OpenFOAMチュートリアルケースから得た領域知識を検索拡張生成（RAG）パイプラインに組み込み，入力ファイルの自動生成・実行・エラー訂正を反復的に行う構造を採用している．評価では，RAGを用いた少数ショットプロンプトにより，境界条件やメッシュ解像度の変更に対応できることが示された．一方，精度担保のための人手監視やモデル性能の時間変動が課題として指摘されている．
-Chen#citep(<chenMetaOpenFOAMLLMbasedMultiagent2024>),#citep(<chenOptMetaOpenFOAMLargeLanguage2025>)は，ソフトウェア開発エージェントMetaGPTをOpenFOAMに適用した「MetaOpenFOAM」は，Architect，InputWriter，Runner，Reviewerの四つのエージェントが連携し，ユーザーの自然言語要求から入力ファイル生成，シミュレーション実行，エラー分析・修正までを自動化する反復ループを構築する．
+数値流体シミュレーションでよく使われるOpenFOAMは、C＋＋言語で作成されたライブラリである。
+Pandy #citep(<pandeyOpenFOAMGPTRAGAugmentedLLM2025>)は、OpenFOAMを用いたCFDシミュレーションの自動化を目的として、GPT-4oおよびCoT機能搭載モデルを基盤とするエージェント「OpenFOAMGPT」が提案している。本手法では、OpenFOAMチュートリアルケースから得た領域知識を検索拡張生成（RAG）パイプラインに組み込み、入力ファイルの自動生成・実行・エラー訂正を反復的に行う構造を採用している。評価では、RAGを用いた少数ショットプロンプトにより、境界条件やメッシュ解像度の変更に対応できることが示された。一方、精度担保のための人手監視やモデル性能の時間変動が課題として指摘されている。
+Chen#citep(<chenMetaOpenFOAMLLMbasedMultiagent2024>),#citep(<chenOptMetaOpenFOAMLargeLanguage2025>)は、ソフトウェア開発エージェントMetaGPTをOpenFOAMに適用した「MetaOpenFOAM」は、Architect、InputWriter、Runner、Reviewerの四つのエージェントが連携し、ユーザーの自然言語要求から入力ファイル生成、シミュレーション実行、エラー分析・修正までを自動化する反復ループを構築する。
 
 \
-これらの先行研究ではLLMによる完全自動化を試行しているが，いまだにLLMによるシミュレーションの完全自動化は難しい．@list_of_llm_problems に完全自動化が困難な理由を列挙する．
+これらの先行研究ではLLMによる完全自動化を試行しているが、いまだにLLMによるシミュレーションの完全自動化は難しい。@list_of_llm_problems に完全自動化が困難な理由を列挙する。
 
 \
 #figure(
@@ -147,44 +128,36 @@ Chen#citep(<chenMetaOpenFOAMLLMbasedMultiagent2024>),#citep(<chenOptMetaOpenFOAM
     align: left,
     [要因], [備考],
     [高度なドメイン知識の不足],
-    [LLMはインターネット上の広範囲のデータを用いて訓練されているが，Modelicaの特定のライブラリやOpenFOAMのファイル構造やパラメータ設定や各種コマンドのなどの情報をインターネット上の汎用的な訓練データから学習することは，難しい．],
-
+    [専門ライブラリは、機密性が高く、インターネットには公開されている活用例は少ない。LLMはインターネット上の広範囲のデータを用いて訓練されているが、Modelicaの特定のライブラリなどの情報を汎用的な訓練データから学習することは、難しい。],
     [信頼性と正確性],
-    [シミュレーション作業のセットアップは，一般的に厳密な正確性が要求される．モデリング作業は，複数のセットアップ作業を正確に実行する必要があるが，すべての作業を正確にじっこうすることは現在のLLMにとっては，難しい．],
-
-    [ライブラリ機密性],
-    [専門ライブラリは，機密性が高く，インターネットには公開されている活用例は少ない．LLMの訓練データにはいっさい含まれていないため，LLMに専門ライブラリの情報を与えるために，RAGによって検索結果をLLMに与えることが一般的である専門ライブラリの活用は，一企業内だけにとどまることがほとんどのため，フインチューニングに必要な訓練データを用意することも難しい．],
-
+    [シミュレーション作業のセットアップは、一般的に厳密な正確性が要求される。モデリング作業は、複数のセットアップ作業を正確に実行する必要があるが、すべての作業を正確に実行することがLLMにとっては、難しい。],
     [ベンチマーク問題の作成],
-    [LLMの回答精度を向上させるためには，システムプロンプトの工夫やパラメータのチューニングが必要である．専門ライブラリは，ユーザ数が限られており，専門性の高い知識が必要でありるため，LLMをチューニングするためのベンチマーク問題を用意することが難しい．],
+    [LLMの回答精度を向上させるためには、システムプロンプトの工夫やパラメータのチューニングが必要である。専門ライブラリは、ユーザ数が限られており、専門性の高い知識が必要でありるため、LLMをチューニングするためのベンチマーク問題を用意することが難しい。],
   ),
   caption: [list of difficultes in applying LLM to simulation modeling],
 )<list_of_llm_problems>
 
 \
-　LLMによるシミュレーションの完全自動化は困難であるが，人間にとって難解な専門ライブラリの読解やコード開発支援は実施可能である．これまで専門家でしか扱えなかったライブラリを使った開発のハードルが大幅に下がり，有用である．
+LLMによるシミュレーション完全自動化は困難であるが、専門ライブラリの読解支援やコード開発支援には有効であり、従来専門家のみが扱えたライブラリ活用の敷居を大きく下げる効果が期待できる。
 
+//一方、製品固有の材料物性や制御ロジックを扱う企業では、汎用ライブラリに加えて自社向けライブラリを内製化し、社内エンジニア間で再利用する運用形態が一般的である。
+// しかし、LLM は事前学習コーパスに含まれない非公開ライブラリの構造や理論的背景を再現できないという課題を抱える。このギャップを補完する手法として、外部知識を検索し出力に組み込む Retrieval-Augmented Generation（RAG）が提案され、根拠付き応答生成に有効であることが示されている。
 
-//一方，製品固有の材料物性や制御ロジックを扱う企業では，汎用ライブラリに加えて自社向けライブラリを内製化し，社内エンジニア間で再利用する運用形態が一般的である．
-// しかし，LLM は事前学習コーパスに含まれない非公開ライブラリの構造や理論的背景を再現できないという課題を抱える．このギャップを補完する手法として，外部知識を検索し出力に組み込む Retrieval-Augmented Generation（RAG）が提案され，根拠付き応答生成に有効であることが示されている．
-
-//文献 [2] では，MetaGPTのアセンブリラインパラダイムを活用し，LangchainベースのRAG技術を統合したマルチエージェントフレームワーク「MetaOpenFOAM」が提案されている．本フレームワークは，Architect，InputWriter，Runner，Reviewerの四つのエージェントが連携し，ユーザーの自然言語要求から入力ファイル生成，シミュレーション実行，エラー分析・修正までを自動化する反復ループを構築する．ベンチマーク評価では，平均85 %のと平均3.6の実行可能性スコアを，ケースあたり約0.22 USDという低コストで実現した．また，アブレーション研究により，Reviewerによる結果レビュー機能およびRAG技術が高い性能に不可欠であることが確認されている．
-//MetaOpenFOAM 2.0を基盤として，LLM駆動のChain‐of‐Thought（CoT）手法と外部解析・最適化ツールライブラリを連携させた「OptMetaOpenFOAM」が提案されている．本システムは，自然言語入力からCFDシミュレーション設定，ポストプロセス，感度解析（Active Subspace Method）およびパラメータ最適化（L‐BFGS‐B）を逐次的に自動化し，水素燃焼室など複数のケーススタディで，約200文字の入力により従来数千行のコードが必要だったワークフローを完遂できることを示した．この結果，非専門家でも効率的に感度解析や最適化タスクを実行可能とし，LLM駆動によるCFD自動化の新たな展開を示唆している．
-//以上のように，これまでの研究では，RAGによる領域知識導入，多層エージェントによる自動化ループ，CoTを活用した最適化連携といった手法により，CFDワークフローの敷居を大幅に低減し，生産性向上を実現している．本研究では，これら先行手法の長所を踏まえ，さらなる安定化と拡張性の検証を行う．
+//文献 [2] では、MetaGPTのアセンブリラインパラダイムを活用し、LangchainベースのRAG技術を統合したマルチエージェントフレームワーク「MetaOpenFOAM」が提案されている。本フレームワークは、Architect、InputWriter、Runner、Reviewerの四つのエージェントが連携し、ユーザーの自然言語要求から入力ファイル生成、シミュレーション実行、エラー分析・修正までを自動化する反復ループを構築する。ベンチマーク評価では、平均85 %のと平均3.6の実行可能性スコアを、ケースあたり約0.22 USDという低コストで実現した。また、アブレーション研究により、Reviewerによる結果レビュー機能およびRAG技術が高い性能に不可欠であることが確認されている。
+//MetaOpenFOAM 2.0を基盤として、LLM駆動のChain‐of‐Thought（CoT）手法と外部解析・最適化ツールライブラリを連携させた「OptMetaOpenFOAM」が提案されている。本システムは、自然言語入力からCFDシミュレーション設定、ポストプロセス、感度解析（Active Subspace Method）およびパラメータ最適化（L‐BFGS‐B）を逐次的に自動化し、水素燃焼室など複数のケーススタディで、約200文字の入力により従来数千行のコードが必要だったワークフローを完遂できることを示した。この結果、非専門家でも効率的に感度解析や最適化タスクを実行可能とし、LLM駆動によるCFD自動化の新たな展開を示唆している。
+//以上のように、これまでの研究では、RAGによる領域知識導入、多層エージェントによる自動化ループ、CoTを活用した最適化連携といった手法により、CFDワークフローの敷居を大幅に低減し、生産性向上を実現している。本研究では、これら先行手法の長所を踏まえ、さらなる安定化と拡張性の検証を行う。
 //== OpenFOAMのシミュレーションの自動化
-//さらに最新モデル Claude Opus 4 は SWE-bench で 72.5 % を記録し，長時間の自律コーディングで人間エンジニアに迫る性能を示している．
+//さらに最新モデル Claude Opus 4 は SWE-bench で 72.5 % を記録し、長時間の自律コーディングで人間エンジニアに迫る性能を示している。
 // == Web上で公開されていない物理シミュレーションモデルへの対処法
-// Modelicaの事例を見つけることができなかったが，オープンソースの数値流体力学ライブラリであるOpenFOAMの事例を見つけることができた．
+// Modelicaの事例を見つけることができなかったが、オープンソースの数値流体力学ライブラリであるOpenFOAMの事例を見つけることができた。
 //=== RAGシステムによる物理シミュレーションモデルの開発性能
-
 
 = 　本研究
 
-本研究では，企業の設計活動に用いる1DCAEのモデリング作業の支援にLLMの適用可能性を検討した．
-
+本研究では、企業における1DCAEのモデリング作業支援にLLMの適用可能性を検討した。
 //===　MBD における役割
 
-// MBDは，設計の初期段階からシミュレーションを活用することにより，開発の効率化と品質向上を目指す手法である．Modelicaは，三次元の機械的挙動を抽象化し，電気系や制御ソフトウェアとの連携シミュレーションを容易にする．これにより，MBDの実践において重要な役割を果たす．
+// MBDは、設計の初期段階からシミュレーションを活用することにより、開発の効率化と品質向上を目指す手法である。Modelicaは、三次元の機械的挙動を抽象化し、電気系や制御ソフトウェアとの連携シミュレーションを容易にする。これにより、MBDの実践において重要な役割を果たす。
 
 // 藤田ら#citep(<fujita2023design>)が指摘するように、ライブラリそのものが設計根拠の集積である設計カタログとなっている。
 
@@ -194,20 +167,13 @@ Chen#citep(<chenMetaOpenFOAMLLMbasedMultiagent2024>),#citep(<chenOptMetaOpenFOAM
 当社（三菱電機）でクローズされたライブラリの活用にLLMを適用した。
 
 本研究で対象としたライブラリについて説明する。
+三菱電機では、冷凍サイクルのシミュレーションに米国Mitsubishi Electric Research Laboratory（MERL）で開発されたModelicaライブラリ「MERL HVAC Library」を利用している。本研究ではこのライブラリを対象とした。MERL HVAC Libraryは、エアコン等の冷凍サイクルにおいて、熱交換器、圧縮機、膨張弁など各要素の冷媒内部の圧力・温度・比エンタルピーなどを計算可能である。ユーザはライブラリに含まれるモデルを組み合わせることで、再利用性と保守性の高い新規モデルを容易に構築できる。全8種類のパッケージから成り、建築熱負荷、冷凍サイクル、制御アルゴリズムに関するモデルが実装されている。冷媒挙動は強い非線形性を持ち、動的シミュレーションが難しいため、物理スケールや時間スケールごとに適切なモデル選択が必要である。
+//Modelica言語は、オブジェクト指向の記述構文を採用した非因果的・宣言型のモデリング言語であり、複雑な物理システムの記述およびシミュレーションに適している。機械、電気、熱、流体、制御などの異なるドメインに属する物理現象を統一的に扱うことが可能であり、マルチドメインシステムの統合的設計に広く用いられている。
+//Modelicaでは、物理法則を微分代数方程式（DAE）の形で直接記述することができる。この特徴により、従来の因果的（入力・出力を明示する）記述方式とは異なり、より自然な形でのモデリングが可能となる。
+//ユーザは既存のモデルをライブラリと利用することができる。、
+MERL HVAC Libraryでは冷媒流の差分化方法や計算スキームの選択も可能である（Laughman#citep(<laughmanComparisonTransientHeatPump2014>))。
 
-三菱電機では，冷凍サイクルのシミュレーションに米国研究所のMitsubishi Electric Research Laboratory (MERL)で開発したModelicaライブラリを使用している．本研究では，このライブラリをMERL HVAC Libraryと呼ぶ． MERL HVAC Librayは，エアコンなどの空気調和機の冷凍サイクルを動的な挙動をシミュレーションできる．冷凍サイクルを構成する熱交換器，圧縮機，膨張弁などの内部を流れる冷媒の圧力，温度，比エンタルピーといったパラメータを入力を計算できる．
-//Modelica言語は，オブジェクト指向の記述構文を採用した非因果的・宣言型のモデリング言語であり，複雑な物理システムの記述およびシミュレーションに適している．機械，電気，熱，流体，制御などの異なるドメインに属する物理現象を統一的に扱うことが可能であり，マルチドメインシステムの統合的設計に広く用いられている．
-//Modelicaでは，物理法則を微分代数方程式（DAE）の形で直接記述することができる．この特徴により，従来の因果的（入力・出力を明示する）記述方式とは異なり，より自然な形でのモデリングが可能となる．
-//ユーザは既存のモデルをライブラリと利用することができる．，
-ユーザはライブラリに包括されたモデルを組み合わせることで，再利用性と保守性をもった新規のモデルを構築できる．
-全8種類のパッケージ群で構成されており建築熱負荷・冷凍サイクル・制御アルゴリズムに関するモデルが実装されている．
-冷媒の挙動は，非線形性が強く，動的なシミュレーションが困難である．モデルの物理スケールと時間スケールによって適切なモデルを選択する必要がある．MERL HVAC Libraryでは，冷媒流れの差分化方法，計算スキームを選択できる#citep(<laughmanComparisonTransientHeatPump2014>)．
-
-シミュレーション実行時には，熱的・流体的計算の複雑性により収束性や計算時間が問題となる場合があるため，ステップサイズ・ソルバ・パラメータのスケーリングに留意する．
-
-このようなノウハウを読み解くために，ライブラリを使いこなすためには，モデルの根拠となる理論や実験のドキュメントが必要になる．MERLから出版された査読付き論文が20報程度ある．また，開発者の博士論文などを読むことで，モデルの理論が記載されている．
-
-
+シミュレーション時には熱流体計算の複雑さから収束性や計算時間への配慮も重要となる。こうしたノウハウを活かすには、モデルの理論や実験ドキュメントの読解が必須であり、MERL発表の論文や開発者の博士論文などが参考資料となる。
 
 //MERL HVAC Libraryによるモデリングの一例としてルームエアコンのモデルを示す。一部のモデルはダイアグラム表示によってクラスの継承関係の可視化が可能であるが、ほとんどのモデルはダイアグラム表示の実装中であり、クラス継承関係はコードから読み解く必要がある
 \
@@ -228,23 +194,23 @@ Chen#citep(<chenMetaOpenFOAMLLMbasedMultiagent2024>),#citep(<chenOptMetaOpenFOAM
 //=== ライブラリの内部構造
 
 
-//2025年2月現在では、MERL HVAC Libraryは8種類のパッケージで校正されている．
+//2025年2月現在では、MERL HVAC Libraryは8種類のパッケージで校正されている。
 //現在は、パッケージの全ファイル数は3,112個ある。各ファイルに定義されたクラスとメソッドの継承関係が複雑であることと、冷凍サイクルの物理モデルリング手法が多岐にわたることがライブラリの理解を難しくしてる。
 //下記にMERL HVAC Libraryによるモデリングの一例としてルームエアコンのモデルを示す。一部のモデルはダイアグラム表示によってクラスの継承関係の可視化が可能であるが、ほとんどのモデルはダイアグラム表示の実装中であり、クラス継承関係はコードから読み解く必要がある
 
 
 //このライブラリには主に3種類の差分法が実装されている。
-//モデル作成時には，標準ライブラリ（Modelica Standard Library）との接続性を意識しつつ，AixLib内のクラス構造や継承関係を理解する必要がある．例えば，建築ゾーンのモデル AixLib.Building.LowOrder は，熱容量，外皮性能，内部発熱などをパラメータとして受け取り，建物の動的応答を表現できるように設計されている．そのため，コンポーネントの選定とパラメータ設定を適切に行うことが求められる．
+//モデル作成時には、標準ライブラリ（Modelica Standard Library）との接続性を意識しつつ、AixLib内のクラス構造や継承関係を理解する必要がある。例えば、建築ゾーンのモデル AixLib.Building.LowOrder は、熱容量、外皮性能、内部発熱などをパラメータとして受け取り、建物の動的応答を表現できるように設計されている。そのため、コンポーネントの選定とパラメータ設定を適切に行うことが求められる。
 
-//さらに，AixLibは多くのサブモデルを再帰的に参照する構造となっており，Modelicaのオブジェクト指向的な特徴（継承・再定義・階層化など）を十分に理解しておく必要がある．モデルの拡張やカスタマイズを行う場合には，replaceable や extends などのキーワードを用いて，既存のテンプレート構造を再利用しつつ，新たな仕様に適合させる．
+//さらに、AixLibは多くのサブモデルを再帰的に参照する構造となっており、Modelicaのオブジェクト指向的な特徴（継承・再定義・階層化など）を十分に理解しておく必要がある。モデルの拡張やカスタマイズを行う場合には、replaceable や extends などのキーワードを用いて、既存のテンプレート構造を再利用しつつ、新たな仕様に適合させる。
 
-//また，AixLibはモデル記述の一貫性を保つために物理単位や制約条件が厳格に定義されているため，整合性の確認が重要である．
+//また、AixLibはモデル記述の一貫性を保つために物理単位や制約条件が厳格に定義されているため、整合性の確認が重要である。
 
 //=== シミュレーションのポスト処理
 
-//Modelica言語において，AixLibなどの大規模ライブラリを利用する際には，以下のような手順で開発を進める．まず初めに，使用するModelica開発環境を整備し，対象とするライブラリの依存関係を含めて正しくインポートする．
+//Modelica言語において、AixLibなどの大規模ライブラリを利用する際には、以下のような手順で開発を進める。まず初めに、使用するModelica開発環境を整備し、対象とするライブラリの依存関係を含めて正しくインポートする。
 
-// 以上のように，複雑なModelicaライブラリを活用するには，(i) 開発環境と依存関係の適切な管理，(ii) ライブラリ内部構造の理解，(iii) Modelica言語の文法と設計思想の把握，(iv) 数値計算の安定性に関する知識，が不可欠である．
+// 以上のように、複雑なModelicaライブラリを活用するには、(i) 開発環境と依存関係の適切な管理、(ii) ライブラリ内部構造の理解、(iii) Modelica言語の文法と設計思想の把握、(iv) 数値計算の安定性に関する知識、が不可欠である。
 
 
 
@@ -255,37 +221,30 @@ Chen#citep(<chenMetaOpenFOAMLLMbasedMultiagent2024>),#citep(<chenOptMetaOpenFOAM
 // 企業内で構築されているライブラリについては、上記と同様に、高度な理論
 
 
-== シミュレーションの方法
+// == シミュレーションの方法
 
-MERL HVAC Libralyなどの物理シミュレーションライブラリを用いてシミュレーションモデルを構築する際のエンジニアの作業プロセスを書く．
-ルームエアコンを例にとると，熱交換器，ファン，圧縮機，膨張弁などの該当するクラスを探索し，各クラスを継wしたモデルを接続すれば良いのであるが、
+// MERL HVAC Libralyなどの物理シミュレーションライブラリを用いてシミュレーションモデルを構築する際のエンジニアの作業プロセスを書く。
+// ルームエアコンを例にとると、熱交換器、ファン、圧縮機、膨張弁などの該当するクラスを探索し、各クラスを継wしたモデルを接続すれば良いのであるが、
 
-また，数値差分法のアルゴリズムを選択する．
+// また、数値差分法のアルゴリズムを選択する。
 
 
 
 
 == 大規模言語モデルの応用
 
-本稿で構築した２つのシステムについて説明する．
+本稿で構築した２つのシステムについて説明する。
 
 === ＲＡＧシステム
-#ref(<fig_RAG_workflow>)に示すＲＡＧシステムは４層構造で設計した．
+#ref(<fig_RAG_workflow>)に示すＲＡＧシステムは４層構造で設計した。
 
-1. データ：MERL HVC Libraryコード，関連論文を Markdown へ変換し，Sentence-BERT で 768 次元ベクトル化して FAISS に格納する ．
-2. 検索層：ユーザ質問を同一埋め込み空間で検索し，上位k件を取得．複数チャンクを階層マージしてプロンプト長を最適化する ．
-3. 生成層：OpenAI GPT-4o mini をベースとするLLMに対し，役割指示＋検索結果＋会話履歴から構成されるテンプレートを送信する．
-4. 出力層：回答と同時に引用情報を提示し，ユーザはソースコード断片へ直接ジャンプできる．
-
-一般知識で回答できる質問には，LLM単体の回答を採用する．
-LLM単体には，「回答に自信がないときは、その旨を申告する」との指示(Instruction)を設定してている．
+(1）データ層：MERL HVAC Libraryのコードや関連論文をMarkdown形式に変換し、Sentence-BERTでベクトル化してFAISSへ格納。（2）検索層：ユーザの質問を同じ埋め込み空間で検索し、上位k件を取得。複数チャンクを階層的にマージしてプロンプト長を最適化する。（3）生成層：OpenAI GPT-4o miniをベースとしたLLMに対し、役割指示＋検索結果＋会話履歴で構成されるテンプレートを送信する。（4）出力層：回答と同時に引用情報を提示し、ユーザはソースコード断片へ直接アクセスできる。  
+一般的な知識で回答可能な場合はLLM単体の応答を採用する。LLM単体には「自信がない場合は、その旨を申告する」指示を与えている。
 
 === Modelicaコード生成エージェント
-#ref(<fig_Agent_workflow>)にエージェントのワークフローを示す．核心は，Plan-Execute-Critique ループにより「検索→提案→コーディング」を自律実行する点である．
-
-1. RAG: 前節のRAGシステムを用いて，ユーザからのプロンプトに関連するドキュメントを検索する．
-2. プランナー(Planner)：RAGシステムが出力した検索結果からモデル構造の手順書（pseudo-plan）を生成する ．
-3. コーダー(Code generation)：手順書に従いコードスニペットを生成する．
+#ref(<fig_Agent_workflow>)にエージェントのワークフローを示す。
+エージェント型ワークフローは、Plan-Execute-Critiqueループにより「検索→計画→コーディング」を自律実行する点が特徴である。  
+（1）RAG：前述のRAGシステムを用いてユーザプロンプトに関連するドキュメントを検索。（2）プランナー：検索結果からモデル構造の手順書（pseudo-plan）を生成。（3）コーダー：手順書に従ってコードスニペットを生成する。
 
 #grid(
   columns: (50%, 50%),
@@ -303,10 +262,12 @@ LLM単体には，「回答に自信がないときは、その旨を申告す�
 
 = 結果
 
-== 一般的な知識で回答できる問題
+== RAGシステムの実験
 
-熱力学の知識に関する問題など、設計エンジニアにとって難易度の高い問題も回答することができる。
-#ref(<table_SimpleLLMresponse>)
+=== 一般的な知識で回答できる問題
+
+熱力学などの高度な知識が必要な問いにも、設計エンジニアが参照できる水準でLLMが回答可能であった。  
+#ref(<table_SimpleLLMresponse>)にプロンプトと回答を記す。
 
 #figure(
   table(
@@ -337,6 +298,10 @@ Physical Meaning
 )<table_SimpleLLMresponse>
 
 
+=== 文書データベースの情報が回答に必要な質問
+関連文書データベースの情報が不可欠な質問にも、RAGを介した回答が可能となった。
+#ref(<table_RAGresponse>)にプロンプトと回答を記す。
+
 #figure(
   table(
     columns: 2,
@@ -345,7 +310,7 @@ Physical Meaning
     [Explain the method of refrigerant property calculation. What is Helmhetltz Energy Equation? Is that related to refrigerant property?],
 
     [Answer],
-    [#text(size: 6pt)[　`
+    [#text(size: 8pt)[　`
 The search results explain different methods for calculating refrigerant properties like density, enthalpy, and temperature based on known state variables like pressure and enthalpy.
  One common approach is to use the chain rule to relate the derivative of density with respect to time to the derivatives of pressure and enthalpy with respect to time (sources 4, 10).
 
@@ -354,29 +319,23 @@ The partial derivatives of density with respect to pressure and enthalpy can be 
 Source Chnuks
 {'text': 'On the other hand, it is wise to     select the enthalpy as the independent state variable because the enthalpy can be     readily used to distinguish whether the refrigerant is in single-phase or two-phase     region and hence appropriate correlations for heat transfer and pressure drop can be     applied accordingly.
 
-.......
+......
 
   2.2.2 Discretization     The partial differential equations (2-1) to (2-3) can be solved by various     methods, like finite difference, finite volume and finite element.'}, 'location': {'s3Location': {'uri': 's3://llmragmerlhvac-hajime-20240909/Qiao_umd_0117E_15712.pdf`]],
   ),
   caption: [Response of LLM],
 )<table_RAGresponse_QA>
 
+=== コード作成の指示
 
-
-=== 文書データベースの情報が回答に必要な質問
-
-== コード作成の指示
-
-=== RAGシステムの回答
-プロントにルームエアコンの冷凍サイクルモデルの作成を指示した結果を#ref(<table_RAGresponse>)に示す．
-仮に，Modelicaに詳しい人間であれば，適当なモデルをライブラリから選択し，そのモデルの仕様を読み解いた上で
-空調に精通していれば，ルームエアコンを構成する室内機，室外機，圧縮機、膨張弁に関するモデルを検索する．ルームエアコンの動的挙動をシミュレーションする上で熱負荷となる部屋のモデルをシミュレーションに含めるなどの工夫を検討する．
-MERL HVAC Libraryを熟知する人間であれば，
+ルームエアコン冷凍サイクルモデルの作成をRAGシステムに指示した結果を#ref(<table_RAGresponse>)に示す。
+Modelicaに精通した人間であれば、適切なモデルをライブラリから選択し仕様を確認し、空調分野の知識があれば必要な室内機、室外機、圧縮機、膨張弁のモデルを探し、部屋モデルも含めて動的挙動を再現できるが、LLM単体では「I don't know.」と応答するに留まった。  
+ただしRAGシステムは関連モデルを検索結果として提示できている。
 
 \
-#ref(<table_RAGresponse>)の出力には，LLMの回答だけでなく，回答の根拠となる検索結果（Source Chunks）を表示している．
-LLMの回答は，'I don't konw.'のみであった．
-Source Chnunksによると，RAGシステムは，ルームエアコンに関連するモデルのいくつかは検索結果として取得しているが，その上で無回答を検索している．
+#ref(<table_RAGresponse>)の出力には、LLMの回答だけでなく、回答の根拠となる検索結果（Source Chunks）を表示している。
+LLMの回答は、'I don't konw.'のみであった。
+Source Chnunksによると、RAGシステムは、ルームエアコンに関連するモデルのいくつかは検索結果として取得しているが、その上で無回答を検索している。
 
 #figure(
   table(
@@ -396,79 +355,63 @@ Source Chunks:
 )<table_RAGresponse>
 
 
-== Ｍｏｄｅｌｉｃａコード生成エージェント
+== Ｍｏｄｅｌｉｃａコード生成エージェントの実験
 
-RAGシステムでは，無回答であったコーディング作業にも
+RAGシステムでは対応できなかったコーディング作業についても、エージェント型ワークフローを導入することで、Plannerエージェントが実行環境構築やパラメータ設定、モデル接続、制御ロジック実装などの手順を具体的に提示した。
+#ref(<table_PlannerResponse>)にエージェントワークフローのPlannerエージェントの出力を載せる。
 
-#ref(<table_PlannerResponse>)にエージェントワークフローのPlannerエージェントの出力を載せる．
-Planenrは，前段階のRAGエージェントから検索結果を受け取り，ルームエアコンのモデル作成にVCComponentsというモデルが関連することを受け取っている．その上で、Modelicaの実況環境の構築（’1 Set Up the Environment’）やシミュレーションに幾つかのパラメータ設定が必要なことを確認している('3 Define Parameters')．
-また，’11 Validation:’では，プロンプトの指示外ではあるが，シミュレーション結果の検証を計画している．
+Planenrは、前段階のRAGエージェントから検索結果を受け取り、ルームエアコンのモデル作成にVCComponentsというモデルが関連することを受け取っている。その上で、Modelicaの実況環境の構築（’1 Set Up the Environment’）やシミュレーションに幾つかのパラメータ設定が必要なことを確認している('3 Define Parameters')。
+また、’11 Validation:’では、プロンプトの指示外ではあるが、シミュレーション結果の検証を計画した。
 
 #figure(
   table(
     columns: 1,
     align: left,
-    [#text(size: 6pt)[
+    [#text(size: 7pt)[
         `
 1 Set Up the Environment:
-• Ensure you have a Modelica environment installed (e-g-, OpenModelica, Dymola).
-• Import the MERL-IVAC Library (VCComponents) into your Modelica environment.
-
+  • Ensure you have a Modelica environment installed (e-g-, OpenModelica, Dymola).
+  • Import the MERL-IVAC Library (VCComponents) into your Modelica environment.
 2 Create a New Model:
-• Start a new Modelica model file (e-f•, RoomAirConditioner-mo).
-• Define the model structure and include necessary libraries. within YourPackageName; model RoomAirConditioner
-
+  • Start a new Modelica model file (e-f•, RoomAirConditioner-mo).
+  • Define the model structure and include necessary libraries. within YourPackageName; model RoomAirConditioner
 3 Define Parameters:
-• Define parameters for the room conditions, such as temperature, humidity, and volume. You can use the parameters from the MultiportLumpedRoomTest model as a reference.
-parameter SI. Temperature TRoom_init - Modelica. Units. Conversions. from_degC(27.0);
-parameter Real RHRoom_init = 0.51;
-parameter SI. Volume volRoom = 87.5 * 77 * 84 * 1.63871e-5 * 10;
-
+  • Define parameters for the room conditions, such as temperature, humidity, and volume. You can use the parameters from the MultiportLumpedRoomTest model as a reference.
+  parameter SI. Temperature TRoom_init - Modelica. Units. Conversions. from_degC(27.0);
+  parameter Real RHRoom_init = 0.51;
+  parameter SI. Volume volRoom = 87.5 * 77 * 84 * 1.63871e-5 * 10;
 4 Instantiate the Room Model:
-• Use the MultiportLumpedRoomTest model to represent the room. This model will handle the thermal dynamics of the room.
-MultiportLumpedRoomTest room(
-TRoom_init TRoom_ init, RHRoom_ init-RHRoom init, volRoom-volRoom);
-
+  • Use the MultiportLumpedRoomTest model to represent the room. This model will handle the thermal dynamics of the room.
+MultiportLumpedRoomTest room(TRoom_init TRoom_ init, RHRoom_ init-RHRoom init, volRoom-volRoom);
 5 Define the Air Handling System:
-• Create an air handling system using components from the FanCurveModels package. You may need to define a fan and a cooling coil.
-// Example of instantiating a fan and cooling coil
-FanCurveModels. Fan fan(...);
-CoolingCoil coolingCoil(...);
-
+  • Create an air handling system using components from the FanCurveModels package. You may need to define a fan and a cooling coil.
+    // Example of instantiating a fan and cooling coil
+    FanCurveModels. Fan fan(...);
+    CoolingCoil coolingCoil(...);
 6 Connect Components:
-• Connect the room,
-fan, and cooling coil. Ensure that the air flow from the fan goes into the room and that
-the cooling coil is properly integrated into the air handling system.
-connect (fan.outlet, coolingCoil. inlet); connect (coolingCoil.outlet, room.airinlet);
-
+  • Connect the room,fan, and cooling coil. Ensure that the air flow from the fan goes into the room and that the cooling coil is properly integrated into the air handling system.connect (fan.outlet, coolingCoil. inlet); connect (coolingCoil.outlet, room.airinlet);
 7 Define Control Logic:
-• Implement control logic for the air conditioner. This could involve setting temperature setpoints and controlling the fan speed based on room conditions.
-// Example control logic
-if room. TRoom > TRoom setpoint then
-fan. speed = maxFanSpeed; // Turn on the fan
-else
-fan. speed = 0; // Turn off the fan
-end if;
-
+  • Implement control logic for the air conditioner. This could involve setting temperature setpoints and controlling the fan speed based on room conditions.
+  // Example control logic
+  if room. TRoom > TRoom setpoint then
+  fan. speed = maxFanSpeed; // Turn on the fan
+  else
+    fan. speed = 0; // Turn off the fan
+  end if;
 8 Add HVAC System Record:
-• Optionally, you can include the HVACSystem record to manage the operating conditions of the HVAC system.
+  • Optionally, you can include the HVACSystem record to manage the operating conditions of the HVAC system.
 HVACSystem hvacSystem(...);
-
 9 Simulation Setup:
-• Set up the simulation parameters, including the simulation time and solver settings.
+  • Set up the simulation parameters, including the simulation time and solver settings.
 simulate(RoomAirConditioner);
-
 10 Run the Simulation:
-• Execute the simulation and analyze the results, Check the room temperature, humidity, and other relevant outputs to ensure the air conditioner is functioning as expected.
-
+  • Execute the simulation and analyze the results, Check the room temperature, humidity, and other relevant outputs to ensure the air conditioner is functioning as expected.
 11 Validation:
-• Validate the model against known benchmarks or existing models (e-g-, EnergyPlus) to ensure accuracy.
-
+  • Validate the model against known benchmarks or existing models (e-g-, EnergyPlus) to ensure accuracy.
 12 Documentation:
-• Document the model, including the purpose, parameters, and any assumptions made during the modeling process,
-Conclusion
-By following these steps, you can construct a room air conditioner model using the MERL-HVAC Library (VCComponents). Adjust the parameters and components as necessary to fit your specific requirements and ensure the
-
+  • Document the model, including the purpose, parameters, and any assumptions made during the modeling process,
+13.Conclusion 
+  By following these steps, you can construct a room air conditioner model using the MERL-HVAC Library (VCComponents). Adjust the parameters and components as necessary to fit your specific requirements and ensure the
 
       `]
     ],
@@ -477,8 +420,11 @@ By following these steps, you can construct a room air conditioner model using t
 )<table_PlannerResponse>
 
 
+#ref(<table_codegeneration_response>)にCode Generationエージェントの出力を載せる。
+実際にはエージェントの出力したコードはそのままでは、コンパイルが通らない。モデルの完成にはパラメータ値の設定が必要になる。ただし、選択したコンポーネントには間違いはなく、モデル作成の初期段階の作業支援の結果としては十分である。
+Code GenerationエージェントがModelicaコードの雛形を自動生成できることを確認した。  
+これにより、従来専門知識が必要だったモデル構築作業の自動化・省力化が可能となった。
 
-#ref(<table_codegeneration_response>)にCode Generationエージェントの出力を載せる．
 
 
 #figure(
@@ -552,7 +498,7 @@ end RoomAirConditioner;
 
 
 = 結　　　言
-本稿では，大規模言語モデルの物理シミュレーションへの作業支援について調べた．現状では，複雑なプロセスが必要な実用ライブラリのコーディング作業は完全には自動化できないが，知識探索やコードの作成方針を探索には実用できることを明らかにした．
+本稿では、大規模言語モデルによる物理シミュレーション分野への作業支援について検討した。現時点では、実用的なライブラリを用いた複雑なコーディング作業を完全に自動化することは困難であるものの、知識探索やコード作成方針の支援には十分実用的であることを示した。今後、LLMとエージェント技術を組み合わせることで、企業内専門ライブラリを活用した設計自動化・効率化の可能性がさらに広がると考えられる。
 
 
 

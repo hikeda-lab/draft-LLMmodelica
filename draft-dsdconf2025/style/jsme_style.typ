@@ -191,33 +191,36 @@
   //   }
   //   value = value + 1
   // }
+  //
 
-set text(size: subtitle_fontsize)
-set align(center)
-super("*" + "1")
-authors.at(0).name
-[, ]
-super("*" + "2") 
-authors.at(1).name
-[, ] 
-super("*" + "1")
-authors.at(2).name 
-[, ]
-super("*" + "1")
-authors.at(3).name 
-
+  {
+    set text(size: subtitle_fontsize)
+    set align(center)
+    super("*" + "1")
+    authors.at(0).name
+    [, ]
+    super("*" + "2")
+    authors.at(1).name
+    [, ]
+    super("*" + "1")
+    authors.at(2).name
+    [, ]
+    super("*" + "1")
+    authors.at(3).name
+  }
 
   //setting english title
-  set text(font: (english, gothic))
-  align(center)[
-    #text(size: subtitle_fontsize, weight: "bold", english_title)
-  ]
-  v(-0.75em)
-  align(center)[
-    #text(size: subtitle_fontsize, weight: "bold", english_subtitle)
-  ]
-  set text(font: (english, mincho))
-
+  {
+    set text(font: (english, gothic))
+    align(center)[
+      #text(size: subtitle_fontsize, weight: "bold", english_title)
+    ]
+    v(-0.75em)
+    align(center)[
+      #text(size: subtitle_fontsize, weight: "bold", english_subtitle)
+    ]
+    set text(font: (english, mincho))
+  }
   //setting english authors
   // v(0.25em)
   // let value = 0
@@ -240,19 +243,21 @@ authors.at(3).name
   //   value = value + 1
   // }
 
-v(0.25em)
-super("*" + "1")
-authors.at(0).english_name
-[, ]
-super("*" + "2") 
-authors.at(1).english_name
-[, ] 
-super("*" + "1")
-authors.at(2).english_name 
-[ and ]
-super("*" + "1")
-authors.at(3).english_name 
-
+  v(0.25em)
+  {
+    set align(center)
+    super("*" + "1")
+    authors.at(0).english_name
+    [, ]
+    super("*" + "2")
+    authors.at(1).english_name
+    [, ]
+    super("*" + "1")
+    authors.at(2).english_name
+    [ and ]
+    super("*" + "1")
+    authors.at(3).english_name
+  }
 
   //setting english thanks
   // v(-0.5em)
@@ -283,24 +288,26 @@ authors.at(3).english_name
   //   }
   //   value = value + 1
   // }
-  // 
-  
-
+  //
 
 
   //English thanks
   v(-0.5em)
-  super(" ")
-  set text(size: english_thanks_fontsize)
-  super("*" + "1") 
-  text(font: (english, mincho), authors.at(0).english_thanks)
-  v(-0.75em)
-  super("*" + "2") 
-  text(font: (english, mincho), authors.at(1).english_thanks)
-  v(-0.75em)
-  text(font: (english, mincho), authors.at(0).english_place)
-  v(-0.75em)
-
+  {
+    set align(center)
+    super(" ")
+    set text(size: english_thanks_fontsize)
+    super("*" + "1")
+    text(font: (english, mincho), authors.at(0).thanks)
+    text(font: (english, mincho), authors.at(0).english_thanks)
+    v(-0.75em)
+    super("*" + "2")
+    text(font: (english, mincho), authors.at(1).thanks)
+    text(font: (english, mincho), authors.at(1).english_thanks)
+    v(-0.75em)
+    text(font: (english, mincho), authors.at(0).english_place)
+    v(-0.75em)
+  }
   // v(1em)
   // text(font: english, weight: "bold")[Received: XXXX; Revised: XXXX; Accepted: XXXX]
   // v(1em)
